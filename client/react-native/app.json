@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Personal Finance Management",
-    "slug": "personal-finance-management",
+    "name": "ZenMoney Personal Finance Management",
+    "slug": "zenmoney-pfm",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -18,7 +18,7 @@
       "supportsTablet": true
     },
     "android": {
-      "package": "com.pfm.personalfinancemanagement",
+      "package": "com.pfm.zenmoney",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
@@ -28,6 +28,6 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "description": ""
+    "description": "ZenMoney Personal Finance Management"
   }
 }

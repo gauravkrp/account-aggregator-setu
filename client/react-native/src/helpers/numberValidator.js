@@ -1,5 +1,7 @@
 export function numberValidator(number) {
-  if (!number) return "Number can't be empty";
-  if (number.length !== 10) return "Number should be 10 characters long.";
+  const isnum = /^\d+$/.test(number);
+  if (!number) return "Mobile Number can't be empty";
+  if (!isnum) return "Please enter a valid number.";
+  if (number.length !== 10) return "Mobile Number should be 10 characters long.";
   return "";
 }

@@ -5,41 +5,48 @@ import Header from "../components/Header";
 import Button from "../components/Button";
 import Paragraph from "../components/Paragraph";
 import TextInput from "../components/TextInput";
-import { ActivityIndicator } from "react-native";
+import { ActivityIndicator, View } from "react-native";
 import { numberValidator } from "../helpers/numberValidator";
+import ApiRoutes from "../core/apiRoutes";
+
+const API = new ApiRoutes();
 
 export default function StartScreen({ navigation }) {
   const [number, setNumber] = useState({ value: "", error: "" });
   const [isLoading, setLoading] = useState(false);
 
-  const getURL = async () => {
+  const getAnumatiURL = async () => {
     setLoading(true);
     const numberError = numberValidator(number.value);
+
+    const getAnumatiURL = () => API.getAnumatiURL(number.value);
 
     if (numberError) {
       setNumber({ ...number, error: numberError });
       setLoading(false);
-    } else {
-      try {
-        const response = await fetch("<URL_OF_EXPRESS_APP>/" + number.value);
-        const json = await response.text();
-        navigation.navigate("Dashboard", { param: json });
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
+      return;
     }
+    
+    getAnumatiURL().then(response => {
+      console.log('response', response);
+      navigation.navigate("SetuAAScreen", { anumatiURL: response });
+    }).catch(err => {
+      console.error(err);
+      setNumber({ ...number, error: err.message || 'Some error occurred!' });
+    })
+      .finally(() => setLoading(false));
+    
   };
 
   return (
     <Background>
       <Logo />
-      <Header>Personal Finance</Header>
+      <Header>ZenMoney PFM</Header>
+      {/* <Header>Personal Finance Management</Header> */}
       <Paragraph>
-        Provide access to your financial data so we can help you manage your
-        budget and finances.
+        We need access to your financial data to provide you a complete picture of your financial health.
       </Paragraph>
+      <Paragraph>Manage all your money, investments and budget in one place.</Paragraph>
       <TextInput
         label="Mobile number"
         returnKeyType="next"
@@ -48,9 +55,10 @@ export default function StartScreen({ navigation }) {
         error={!!number.error}
         errorText={number.error}
         keyboardType="number-pad"
+        maxLength={10}
       />
-      <Button mode="contained" onPress={getURL}>
-        Provide Access
+      <Button mode="contained" onPress={getAnumatiURL} disabled={number.value.length < 10}>
+        Continue
       </Button>
       {isLoading ? <ActivityIndicator size="large" color="#0000ff" /> : null}
     </Background>

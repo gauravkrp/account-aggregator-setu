@@ -3,7 +3,7 @@ import { Provider } from "react-native-paper";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { theme } from "./src/core/theme";
-import { StartScreen, Complete, Dashboard } from "./src/screens";
+import { StartScreen, ConsentComplete, SetuAAScreen } from "./src/screens";
 
 const Stack = createStackNavigator();
 
@@ -18,8 +18,8 @@ export default function App() {
           }}
         >
           <Stack.Screen name="StartScreen" component={StartScreen} />
-          <Stack.Screen name="Dashboard" component={Dashboard} />
-          <Stack.Screen name="Complete" component={Complete} />
+          <Stack.Screen name="SetuAAScreen" component={SetuAAScreen} />
+          <Stack.Screen name="ConsentComplete" component={ConsentComplete} />
         </Stack.Navigator>
       </NavigationContainer>
     </Provider>

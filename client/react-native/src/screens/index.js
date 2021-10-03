@@ -1,3 +1,3 @@
 export { default as StartScreen } from "./StartScreen";
-export { default as Complete } from "./Complete";
-export { default as Dashboard } from "./Dashboard";
+export { default as ConsentComplete } from "./ConsentComplete";
+export { default as SetuAAScreen } from "./SetuAAScreen";
