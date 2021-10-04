@@ -11,14 +11,14 @@ import WebView from "react-native-webview";
 import { API_URL } from '@env';
 
 export default function SetuAAScreen({ navigation, route }) {
-  console.log('Dashboard', navigation, route);
+  // console.log('Dashboard', navigation, route);
   const webviewRef = useRef(null);
   const anumatiURL = route.params.anumatiURL;
   const redirect_url = `${API_URL}/redirect/`;
 
   const onNavigation = (navState) => {
-    console.log(redirect_url, 'navState', navState);
-    console.log(navState.url === redirect_url);
+  //   console.log(redirect_url, 'navState', navState);
+  //   console.log(navState.url === redirect_url);
     if (navState.url === redirect_url) {
       navigation.navigate("ConsentComplete");
     }

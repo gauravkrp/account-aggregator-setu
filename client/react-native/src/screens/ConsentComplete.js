@@ -4,6 +4,9 @@ import Paragraph from "../components/Paragraph";
 import Header from "../components/Header";
 import Button from "../components/Button";
 import { ActivityIndicator, View, Text, ScrollView } from "react-native";
+import ApiRoutes from "../core/apiRoutes";
+
+const API = new ApiRoutes();
 
 // import { BarChart, PieChart } from "react-native-gifted-charts";
 
@@ -23,15 +26,16 @@ export default function ConsentComplete({ navigation }) {
 
   useEffect(() => {
     setTimeout(function () {
-      fetchData();
-    }, 5000);
+      setLoading(false);
+      // fetchData();
+    }, 2000);
   }, []);
 
   const fetchData = async () => {
     try {
-      const response = await fetch("<URL_OF_BACKEND_APP>/get-data/");
-      const json = await response.json();
-      let transactions = json["account"]["transactions"]["transaction"];
+      const response = await API.fetchFIData();
+      console.log('get-data-response', response);
+      let transactions = response["account"]["transactions"]["transaction"];
       let total_amount = 0;
       let num_debit = 0;
       let num_credit = 0;
@@ -68,11 +72,23 @@ export default function ConsentComplete({ navigation }) {
   return (
     <Background>
       <ScrollView style={{ flex: 1 }}>
-        {isLoading ? (
+        <>
+          <Header>Consent successfully approved</Header>
+          {isLoading && <ActivityIndicator size="large" color="#0000ff" />}
+          <Paragraph>
+            Please wait while we fetch your financial data.
+            It will take a few minutes to request and fetch your financial data from banks and other accounts.
+            We'll notify you once we have prepared insights for you.
+          </Paragraph>
+        </>
+        {
+        /* {isLoading ? (
           <>
             <Header>Consent successfully approved</Header>
             <Paragraph>
               Please wait while we fetch your financial data.
+              It will take a few minutes to request and fetch your financial data from banks and other accounts.
+              We'll notify you once we have prepared insights for you.
             </Paragraph>
             <ActivityIndicator size="large" color="#0000ff" />
           </>
@@ -147,7 +163,7 @@ export default function ConsentComplete({ navigation }) {
             <Paragraph style={{ fontWeight: "bold" }}>
               Total spendings: ₹{data["total_amount"]}
             </Paragraph>
-            {/* <BarChart
+            { <BarChart
               barWidth={15}
               noOfSections={3}
               barBorderRadius={4}
@@ -155,8 +171,8 @@ export default function ConsentComplete({ navigation }) {
               data={barData}
               yAxisThickness={0}
               xAxisThickness={0}
-            /> */}
-            {/* <PieChart
+            /> }
+            { <PieChart
               donut
               showText
               textColor="white"
@@ -164,7 +180,7 @@ export default function ConsentComplete({ navigation }) {
               showTextBackground
               textBackgroundRadius={1}
               data={data["pie_data"]}
-            /> */}
+            /> }
             <Button
               mode="outlined"
               onPress={() =>
@@ -177,7 +193,8 @@ export default function ConsentComplete({ navigation }) {
               Go home
             </Button>
           </>
-        )}
+        )} */
+        }
       </ScrollView>
     </Background>
   );

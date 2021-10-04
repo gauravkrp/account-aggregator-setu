@@ -5,6 +5,13 @@
  * Last Updated on : 02 Oct, 2021
  */
 
+const HTTP_METHOD = {
+  GET: 'GET',
+  POST: 'POST',
+  PUT: 'PUT',
+  DELETE: 'DELETE',
+}
+
 const CONSENT_MODE = {
   VIEW: 'VIEW',
   STORE: 'STORE',
@@ -178,6 +185,7 @@ const HEART_BEAT_STATUS = {
 };
 
 module.exports = {
+  HTTP_METHOD,
   CONSENT_MODE,
   FETCH_TYPE,
   CONSENT_TYPE,

@@ -16,7 +16,7 @@
     "camelcase": "off",
     "no-console": "off", // turn this on in production
     "arrow-parens": "off",
-    "prettier/prettier": ["error", { "quoteProps": "consistent" }],
+    "prettier/prettier": ["error", { "quoteProps": "consistent", "parser": "flow" }],
     "quote-props": ["warn", "consistent"]
   }
 }

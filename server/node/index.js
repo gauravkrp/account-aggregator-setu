@@ -1,5 +1,5 @@
 /**
- * zen-pfm-backend 
+ * zen-pfm-backend
  * express app
  * Author: Gaurav Pandey (https://github.com/gauravkrp)
  */
@@ -21,8 +21,7 @@ const signature = require('./util/request_signing');
 const requestData = require('./util/request_data');
 const createConsentArtifact = require('./util/create_consent_request');
 const decrypt_data = require('./util/decrypt_data');
-
-const { YOUR_CLIENT_URL } = process.env;
+const { HTTP_METHOD } = require('./util/enums');
 
 // use the express-static middleware
 app.use(cors());
@@ -30,7 +29,30 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
-// methods used in routes
+// global api axios config
+const axiosInstance = axios.create({
+  baseURL: config.api_url,
+  timeout: 90000,
+  headers: {
+    'Content-Type': 'application/json',
+    'client_api_key': config.client_api_key,
+  },
+});
+
+// create request object to be passed in api calls.
+const createApiCall = (http_method, url, jws, data = null,) =>
+  // eslint-disable-next-line implicit-arrow-linebreak
+  axiosInstance({
+    method: http_method,
+    url,
+    headers: {
+      ...axiosInstance.defaults.headers.common,
+      'x-jws-signature': jws,
+    },
+    data,
+  });
+
+// methods used in routes ---------------
 
 // FETCH DATA REQUEST
 const fi_data_fetch = (session_id, encryption_privateKey, keyMaterial) => {
@@ -38,16 +60,9 @@ const fi_data_fetch = (session_id, encryption_privateKey, keyMaterial) => {
     encoding: 'utf8',
   });
   const detachedJWS = signature.makeDetachedJWS(privateKey, `/FI/fetch/${session_id}`);
-  const requestConfig = {
-    method: 'get',
-    url: `${config.api_url}/FI/fetch/${session_id}`,
-    headers: {
-      'Content-Type': 'application/json',
-      'client_api_key': config.client_api_key,
-      'x-jws-signature': detachedJWS,
-    },
-  };
-  axios(requestConfig)
+  const apiCall = createApiCall(HTTP_METHOD.GET, `/FI/fetch/${session_id}`, detachedJWS);
+
+  apiCall
     .then(response => {
       decrypt_data(response.data.FI, encryption_privateKey, keyMaterial);
     })
@@ -64,18 +79,9 @@ const fi_data_request = async (signedConsent, consent_id) => {
     encoding: 'utf8',
   });
   const detachedJWS = signature.makeDetachedJWS(privateKey, request_body);
-  const requestConfig = {
-    method: 'post',
-    url: `${config.api_url}/FI/request`,
-    headers: {
-      'Content-Type': 'application/json',
-      'client_api_key': config.client_api_key,
-      'x-jws-signature': detachedJWS,
-    },
-    data: request_body,
-  };
+  const apiCall = createApiCall(HTTP_METHOD.POST, `/FI/request`, detachedJWS, request_body);
 
-  axios(requestConfig)
+  apiCall
     .then(response => {
       // Ideally, after this step we save the session ID in your DB
       // and wait for FI notification and then proceed.
@@ -91,18 +97,10 @@ const fetchSignedConsent = consent_id => {
   const privateKey = fs.readFileSync('./keys/private_key.pem', {
     encoding: 'utf8',
   });
-  const detachedJWS = signature.makeDetachedJWS(privateKey, `/Consent/${consent_id}`);
-  const requestConfig = {
-    method: 'get',
-    url: `${config.api_url}/Consent/${consent_id}`,
-    headers: {
-      'Content-Type': 'application/json',
-      'client_api_key': config.client_api_key,
-      'x-jws-signature': detachedJWS,
-    },
-  };
+  const detachedJWS = signature.makeDetachedJWS(privateKey, consent_id);
+  const apiCall = createApiCall(HTTP_METHOD.GET, `/Consent/${consent_id}`, detachedJWS);
 
-  axios(requestConfig)
+  apiCall
     .then(response => {
       fi_data_request(response.data.signedConsent, consent_id);
     })
@@ -135,20 +133,11 @@ app.get('/consent/:mobileNumber', (req, res) => {
     encoding: 'utf8',
   });
   const detachedJWS = signature.makeDetachedJWS(privateKey, body);
-  const requestConfig = {
-    method: 'post',
-    url: `${config.api_url}/Consent`,
-    headers: {
-      'Content-Type': 'application/json',
-      'client_api_key': config.client_api_key,
-      'x-jws-signature': detachedJWS,
-    },
-    data: body,
-  };
+  const apiCall = createApiCall(HTTP_METHOD.POST, `/Consent`, detachedJWS, body);
 
-  axios(requestConfig)
+  apiCall
     .then(response => {
-      const url = `${config.anumati_url}/${response.data.ConsentHandle}?redirect_url=${YOUR_CLIENT_URL}/redirect`;
+      const url = `${config.anumati_url}/${response.data.ConsentHandle}?redirect_url=${config.your_client_url}/redirect`;
       res.send(url);
     })
     .catch(error => {
@@ -158,10 +147,9 @@ app.get('/consent/:mobileNumber', (req, res) => {
 
 // CONSENT NOTIFICATION
 app.post('/Consent/Notification', (req, res) => {
-  const body = { req };
+  const { body, headers } = req;
   console.log('body', body);
 
-  const { headers } = req;
   const obj = JSON.parse(fs.readFileSync('./keys/setu_public_key.json', 'utf8'));
   const pem = jwkToPem(obj);
 
@@ -190,8 +178,7 @@ app.post('/Consent/Notification', (req, res) => {
 
 // FI NOTIFICATION
 app.post('/FI/Notification', (req, res) => {
-  const { body } = req;
-  const { headers } = req;
+  const { body, headers } = req;
   const obj = JSON.parse(fs.readFileSync('./keys/setu_public_key.json', 'utf8'));
   const pem = jwkToPem(obj);
 

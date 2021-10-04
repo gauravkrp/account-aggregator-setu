@@ -14,4 +14,5 @@ module.exports = {
   anumati_url: process.env.ANUMATI_URL,
   client_api_key: process.env.CLIENT_API_KEY,
   rahasya_url: process.env.RAHASYA_URL,
+  your_client_url: process.env.YOUR_CLIENT_URL,
 };

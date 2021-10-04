@@ -19,21 +19,21 @@ export default function StartScreen({ navigation }) {
     setLoading(true);
     const numberError = numberValidator(number.value);
 
-    const getAnumatiURL = () => API.getAnumatiURL(number.value);
-
     if (numberError) {
       setNumber({ ...number, error: numberError });
       setLoading(false);
       return;
     }
     
-    getAnumatiURL().then(response => {
-      console.log('response', response);
-      navigation.navigate("SetuAAScreen", { anumatiURL: response });
-    }).catch(err => {
-      console.error(err);
-      setNumber({ ...number, error: err.message || 'Some error occurred!' });
-    })
+    API.getAnumatiURL(number.value)
+      .then(response => {
+        // console.log('response', response);
+        // route to Setu AA WebView and send anumatiURL in router params
+        navigation.navigate("SetuAAScreen", { anumatiURL: response });
+      }).catch(err => {
+        console.error(err);
+        setNumber({ ...number, error: err.message || 'Some error occurred!' });
+      })
       .finally(() => setLoading(false));
     
   };
