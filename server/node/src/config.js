@@ -15,4 +15,5 @@ module.exports = {
   client_api_key: process.env.CLIENT_API_KEY,
   rahasya_url: process.env.SETU_RAHASYA_URL,
   your_client_url: process.env.YOUR_CLIENT_URL,
+  db: process.env.MONGODB_URI,
 };

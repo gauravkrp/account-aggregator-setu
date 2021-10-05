@@ -13,21 +13,26 @@ const axios = require('axios');
 const localStorage = require('localStorage');
 const jwkToPem = require('jwk-to-pem');
 const fs = require('fs');
-const config = require('./config');
 
 // UTILS
-const uuid = require('./util/uuid');
-const signature = require('./util/request_signing');
-const requestData = require('./util/request_data');
-const createConsentArtifact = require('./util/create_consent_request');
-const decrypt_data = require('./util/decrypt_data');
-const { HTTP_METHOD } = require('./util/enums');
+const config = require('./src/config');
+const uuid = require('./src/utils/uuid');
+const signature = require('./src/utils/request_signing');
+const requestData = require('./src/utils/request_data');
+const createConsentArtifact = require('./src/utils/create_consent_request');
+const decrypt_data = require('./src/utils/decrypt_data');
+const { HTTP_METHOD } = require('./src/utils/enums');
+const userRouter = require('./src/routes/user.route');
+const { connect, disconnect } = require('./src/db');
 
 // use the express-static middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
+
+// connect to db;
+connect();
 
 // global api axios config
 const axiosInstance = axios.create({
@@ -40,7 +45,7 @@ const axiosInstance = axios.create({
 });
 
 // create request object to be passed in api calls.
-const createApiCall = (http_method, url, jws, data = null,) =>
+const createApiCall = (http_method, url, jws, data = null) =>
   // eslint-disable-next-line implicit-arrow-linebreak
   axiosInstance({
     method: http_method,
@@ -110,8 +115,9 @@ const fetchSignedConsent = consent_id => {
 };
 
 // routes --------------------------
+
 // define the first/default route
-app.get('/', (req, res) => {
+app.get('/api/', (req, res) => {
   res.send({
     status: true,
     message: 'Hello from ZenMoney PFM API',
@@ -119,13 +125,15 @@ app.get('/', (req, res) => {
 });
 
 // upon redirect from setu AA webview screens
-app.get('/redirect', (req, res) => {
+app.get('/api/redirect', (req, res) => {
   console.log('redirecting...');
   res.send('redirecting...');
 });
 
+app.use(`/api/users`, userRouter);
+
 // CREATE CONSENT CALL
-app.get('/consent/:mobileNumber', (req, res) => {
+app.get('/api/consent/:mobileNumber', (req, res) => {
   const { mobileNumber } = req.params;
   localStorage.setItem('consent', 'Pending');
   const body = createConsentArtifact(mobileNumber);
@@ -146,7 +154,7 @@ app.get('/consent/:mobileNumber', (req, res) => {
 });
 
 // CONSENT NOTIFICATION
-app.post('/Consent/Notification', (req, res) => {
+app.post('/api/Consent/Notification', (req, res) => {
   const { body, headers } = req;
   console.log('body', body);
 
@@ -177,7 +185,7 @@ app.post('/Consent/Notification', (req, res) => {
 });
 
 // FI NOTIFICATION
-app.post('/FI/Notification', (req, res) => {
+app.post('/api/FI/Notification', (req, res) => {
   const { body, headers } = req;
   const obj = JSON.parse(fs.readFileSync('./keys/setu_public_key.json', 'utf8'));
   const pem = jwkToPem(obj);
@@ -198,8 +206,13 @@ app.post('/FI/Notification', (req, res) => {
 });
 
 // GET DATA
-app.get('/get-data', (req, res) => {
+app.get('/api/get-data', (req, res) => {
   res.send(JSON.parse(localStorage.getItem('jsonData')));
+});
+
+// 404 error
+app.all('*', (req, res) => {
+  res.status(404).send('Sorry, nothing found for this path!').end();
 });
 
 // start the server listening for requests
