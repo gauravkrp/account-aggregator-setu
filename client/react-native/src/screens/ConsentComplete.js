@@ -26,9 +26,9 @@ export default function ConsentComplete({ navigation }) {
 
   useEffect(() => {
     setTimeout(function () {
-      setLoading(false);
-      // fetchData();
-    }, 2000);
+      // setLoading(false);
+      fetchData();
+    }, 5000);
   }, []);
 
   const fetchData = async () => {
@@ -72,7 +72,7 @@ export default function ConsentComplete({ navigation }) {
   return (
     <Background>
       <ScrollView style={{ flex: 1 }}>
-        <>
+        {/* <>
           <Header>Consent successfully approved</Header>
           {isLoading && <ActivityIndicator size="large" color="#0000ff" />}
           <Paragraph>
@@ -80,9 +80,8 @@ export default function ConsentComplete({ navigation }) {
             It will take a few minutes to request and fetch your financial data from banks and other accounts.
             We'll notify you once we have prepared insights for you.
           </Paragraph>
-        </>
-        {
-        /* {isLoading ? (
+        </> */}
+        {isLoading ? (
           <>
             <Header>Consent successfully approved</Header>
             <Paragraph>
@@ -193,8 +192,7 @@ export default function ConsentComplete({ navigation }) {
               Go home
             </Button>
           </>
-        )} */
-        }
+        )}
       </ScrollView>
     </Background>
   );

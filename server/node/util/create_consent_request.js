@@ -18,7 +18,7 @@ const consentStart = dateNow.toISOString();
 const consentExpiry = FIDATA_end.toISOString();
 const fiDataFrom = FIDATA_start.toISOString();
 
-const ver = process.env.API_VERSION;
+const ver = process.env.SETU_API_VERSION;
 const fiu_id = process.env.FIU_ID;
 
 const data_life_value = 10; // 10 years
